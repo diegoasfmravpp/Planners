@@ -1,48 +1,7 @@
 import casadi as ca
 import numpy as np
 import matplotlib.pyplot as plt
-
-# from ...knowledge.vehicle import dynamics
-# from ...knowledge.vehicle import geometry
-
-class Vehicle_Dynamics:
-    def __init__(self):
-        # Vehicle dynamics limits
-        # v_max  = settings.get('vehicle.limits.max_speed')
-        # ax_max = settings.get('vehicle.limits.max_longitudinal_acceleration')
-        # ax_min = settings.get('vehicle.limits.min_longitudinal_acceleration')
-        # ay_max = settings.get('vehicle.limits.max_lateral_acceleration')
-        # max_steering_rate = settings.get('vehicle.limits.max_steering_rate')
-        # wheelbase = settings.get('vehicle.geometry.wheelbase')
-        # max_wheel_angle = settings.get('vehicle.geometry.max_wheel_angle')
-
-        # max_steering_rate = steer2front(max_steering_rate)
-
-        #hard coded, remove
-        v_max = 11.0
-        max_wheel_angle = 0.6108
-        ax_max = 3.0
-        ax_min =  -3.0
-        ay_max = 3.0
-        max_steering_rate = 0.2
-        wheelbase = 2.5
-
-        self.v_bounds = [0, v_max]
-        self.theta_bounds = [-max_wheel_angle, max_wheel_angle]
-
-        self.ax_bounds = [ax_min, ax_max]
-        self.ay_bounds = [-ay_max, ay_max]
-
-        self.omega_bounds = [-max_steering_rate, max_steering_rate]
-        
-    # Dynamics
-    def x_dot(self, x, u):
-        dx = x[3] * ca.sin(x[2])
-        dy = x[3] * ca.cos(x[2])
-        dtheta = u[1]
-        dv = u[0]
-
-        return ca.vertcat(dx, dy, dtheta, dv)
+from ..dynamics.dubins import Vehicle_Dynamics
 
 
 def cone_trajectory_optimization(vehicle : Vehicle_Dynamics,
