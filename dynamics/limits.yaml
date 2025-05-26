@@ -1,7 +1,16 @@
-v_max: 11.0
-max_wheel_angle: 0.6108
-ax_max: 3.0
-ax_min:  -3.0
+v_max: 5.0
+v_min: -5.0
+max_wheel_angle: 3.0
+ax_max: 10.0
+ax_min:  -10.0
 ay_max: 3.0
-max_steering_rate: 0.2
+max_steering_rate: 1.05
 wheelbase: 2.5
+
+# v_max: 11.0
+# max_wheel_angle: 0.6108
+# ax_max: 3.0
+# ax_min:  -3.0
+# ay_max: 3.0
+# max_steering_rate: 0.2
+# wheelbase: 2.5
