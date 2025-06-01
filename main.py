@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import shapely
 import shapely.geometry
@@ -6,6 +7,7 @@ from shapely import plotting
 import matplotlib.pyplot as plt
 from dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
 from optimization.casadi_planning import cone_trajectory_optimization, trajectory_optimization
+from sampling.run import run_rrt
 
 def setup_system():
     t_step, car_L = 0.1, 0.5
@@ -53,7 +55,7 @@ def plot_trajs(ts,xs,us,ax, **kwargs):
     ax.plot(ts[:-1],[u[1] for u in us],label='psi',**kwargs)
     ax.legend()
 
-def test_2():
+def optimization_demo():
     dubins = setup_system()
 
     x0 = np.array([0]*5)
@@ -71,8 +73,8 @@ def test_2():
 
     fig,axs = plt.subplots(1,2,figsize=(10,4))
     # workspace trajectory
-    axs[0].plot([x[0] for x in xt],[x[1] for x in xt])
-    # axs[0].plot([x[0] for x in xt],[x[1] for x in xt],linestyle=':')
+    # axs[0].plot([x[0] for x in xt],[x[1] for x in xt])
+    axs[0].plot([x[0] for x in xt],[x[1] for x in xt],linestyle=':')
 
     # plot goal configuration
     axs[0].arrow(xf[0], xf[1], 1.0*np.cos(xf[2]), 
@@ -84,7 +86,6 @@ def test_2():
     axs[0].axis('equal')
     plot_trajs(list(range(N+1)),xt,ut,axs[1])
     plt.show()
-
 
 def test_1():
     cones = [
@@ -141,14 +142,33 @@ def test_1():
     plt.tight_layout()
     plt.show()
 
-if __name__ == '__main__':
-    import sys
-    if len(sys.argv) > 1:
-        test = sys.argv[1]
-    if test.startswith('1'):
-        problem1()
-    if test.startswith('test_1'):
-        test_1()
-    if test.startswith('test_2'):
-        test_2()
+def rrt_demo():
+    dubins = setup_system()
 
+    x0 = np.array([0]*5)
+    # x0[2] = np.pi/2  # initial orientation
+    # xtarget = np.array([0,10,np.pi/2,0,0])
+    xf = np.array([0, 3,np.pi,0,0])
+    N = 100
+    dt = 0.1
+
+    run_rrt(dubins, x0, xf)
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        planner = sys.argv[1]
+
+    demos = {
+        'optimization_demo': optimization_demo,
+        'test_1': test_1,
+        'rrt_demo': rrt_demo
+    }
+    if planner in demos:
+        demos[planner]()
+    # getattr(sys.modules[__name__], planner)()
+    # if planner.startswith('1'):
+    #     problem1()
+    # if test.startswith('test_1'):
+    #     test_1()
+    # if test.startswith('test_2'):
+    #     test_2()

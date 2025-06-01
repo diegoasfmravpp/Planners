@@ -33,7 +33,7 @@ def trajectory_optimization(configurationspace : VehicleConfigurationSpace,
     x = ca.SX.sym('x',len(x0))
     u = ca.SX.sym('u',len(u_guess[0]))
 
-    dx = configurationspace.dynamics.x_dot(x, u)
+    dx = configurationspace.dynamics.x_dot(x, u, casadi=True)
     dynamic_constraints = [x + dt * dx]
 
     forward_dynamics = ca.Function('f', [x,u], dynamic_constraints)
