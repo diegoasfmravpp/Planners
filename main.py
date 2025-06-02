@@ -5,9 +5,10 @@ import shapely.geometry
 from shapely.geometry import Polygon
 from shapely import plotting
 import matplotlib.pyplot as plt
-from dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
+from config.dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
 from optimization.casadi_planning import cone_trajectory_optimization, trajectory_optimization
 from sampling.run import run_rrt
+from  utils import settings
 
 def setup_system():
     t_step, car_L = 0.1, 0.5
@@ -20,7 +21,7 @@ def setup_system():
 
     car_w, car_h = 0.75, 0.3
 
-    dist_weights = np.array([1.0, 1.0, 1.0, 0.2, 0.1])
+    dist_weights = np.array([1.0, 1.0, 0.1, 2.0, 2.0])
     car_shape = None
 
     car_points = np.array([[-car_w*0.1, -car_h/2], [ car_w*0.9, -car_h/2], 
@@ -146,29 +147,22 @@ def rrt_demo():
     dubins = setup_system()
 
     x0 = np.array([0]*5)
-    # x0[2] = np.pi/2  # initial orientation
-    # xtarget = np.array([0,10,np.pi/2,0,0])
-    xf = np.array([0, 3,np.pi,0,0])
-    N = 100
-    dt = 0.1
-
-    run_rrt(dubins, x0, xf)
+    xf = np.array([0,7,np.pi,0,0])
+    rrt_settings = settings.get('demo', 'rrt')
+    
+    run_rrt(dubins, x0, xf, rrt_settings)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        planner = sys.argv[1]
+        demo = sys.argv[1]
 
     demos = {
         'optimization_demo': optimization_demo,
         'test_1': test_1,
         'rrt_demo': rrt_demo
     }
-    if planner in demos:
-        demos[planner]()
-    # getattr(sys.modules[__name__], planner)()
-    # if planner.startswith('1'):
-    #     problem1()
-    # if test.startswith('test_1'):
-    #     test_1()
-    # if test.startswith('test_2'):
-    #     test_2()
+    if demo in demos:
+        demos[demo]()
+    else:
+        print(f"Unknown demo: {demo}. Available demos: {', '.join(demos.keys())}")
+        sys.exit(1)

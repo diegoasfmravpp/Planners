@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import shapely
 import numpy as np
 
-def run_rrt(configurationspace, start_state, target_state, num_iters=1000, goal_sampling_bias=0.0):
-    rrt = RRT(configurationspace)
+def run_rrt(configurationspace, start_state, target_state, settings):
+    rrt = RRT(configurationspace, settings)
     rrt.initialize(start_state, target_state)
 
     #plotting
@@ -31,8 +31,8 @@ def run_rrt(configurationspace, start_state, target_state, num_iters=1000, goal_
     closest_node = None
     closest_dist = float('inf')
     collision_states = []
-    for iteration in range(num_iters):    
-        new_node, collision_state = rrt.extend(target_state, goal_sampling_bias)
+    for iteration in range(settings['max_iterations']):    
+        new_node, collision_state = rrt.extend(target_state)
      
         #check goal condition
         if new_node is not None:
@@ -46,8 +46,7 @@ def run_rrt(configurationspace, start_state, target_state, num_iters=1000, goal_
                 closest_dist = new_node_distance
         collision_states.append(collision_state)
         #redraw plot periodically
-        #if iter_idx % 50 == 0:
-        if iteration % 50 == 0:
+        if iteration % 500 == 0:
             plt.gca().cla()
             draw_tree()
             

@@ -1,18 +1,15 @@
 import yaml
 import casadi as ca
-import os
 import numpy as np
 import shapely
 from typing import List, Optional
+from utils import settings
 
 class VehicleStateSpace:
-    def __init__(self):
+    def __init__(self, t_step: float = 0.1):
 
-        # Load YAML file
-        this_dir = os.path.dirname(__file__)
-        yaml_path = os.path.join(this_dir, 'limits.yaml')
-        with open(yaml_path, "r") as file:
-            data = yaml.safe_load(file)
+
+        data = settings.get('dynamics.limits')
         # Load vehicle limits
         v_max = data["v_max"]
         v_min = data["v_min"]
@@ -30,7 +27,7 @@ class VehicleStateSpace:
         self.psi_bounds = [-max_wheel_angle, max_wheel_angle]
         self.phi_bounds = [-max_steering_rate, max_steering_rate]
 
-        self.t_step = 0.1
+        self.t_step = t_step
         
     # Dynamics
     def x_dot(self, x, u, casadi=False):

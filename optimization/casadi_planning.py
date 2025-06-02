@@ -1,7 +1,7 @@
 import casadi as ca
 import numpy as np
 import matplotlib.pyplot as plt
-from dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
+from config.dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
 import shapely
 
 

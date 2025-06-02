@@ -5,7 +5,7 @@ import shapely.plotting
 import numpy as np
 import weakref
 from typing import Tuple,List,Optional
-from dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
+from config.dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
 from .nearestneighbors import NearestNeighbors
 
 class RRTNode:
@@ -48,13 +48,19 @@ class RRTNode:
 
 
 class RRT:
-    def __init__(self, configurationspace : VehicleConfigurationSpace):
+    def __init__(self, configurationspace : VehicleConfigurationSpace, settings):
         # self.delta = delta
         self.configurationspace = configurationspace
         self.nn = NearestNeighbors(configurationspace.distance, method='kdtree')
         self.nodes = []         # type : List[RRTNode]
         self.start_node = None        # type : RRTNode
         self.goal = None
+
+        # rrt settings
+        self.time_step = settings['time_step']
+        self.integration_time_limit = settings['integration_time_limit']
+        self.goal_sampling_bias = settings['goal_sampling_bias']
+        self.sampled_controls = settings['sampled_controls']
 
     def initialize(self, start_state : list, target_state : list = None):
         """Initialize the RRT with a start and goal state."""
@@ -63,9 +69,9 @@ class RRT:
         self.nn.add(start_state,self.start_node)
         self.goal = target_state
     
-    def extend(self, target_state, goal_sampling_bias) -> Optional[RRTNode]:
+    def extend(self, target_state) -> Optional[RRTNode]:
         """Extends the tree once"""
-        sampled_state = self.configurationspace.sample_state(target_state, goal_sampling_bias)
+        sampled_state = self.configurationspace.sample_state(target_state, self.goal_sampling_bias)
         nearest_node = self.nearest(sampled_state)
         if nearest_node is None:
             return None
@@ -88,16 +94,17 @@ class RRT:
         """Propagate the state with k random controls and return the control,
         time it was applied, and trajectory of the closest end state to the target state.
         """
-        k = 1
+        k = self.sampled_controls
         trajectories_end_distance = np.zeros(k)
         u = np.zeros([k,2])
-        integration_time_limit = 1.0
         integration_times  = np.zeros(k)
         trajectories = []
         for i in range(k):
             u[i] = self.configurationspace.dynamics.sample_control()
-            integration_times[i] = (np.random.random() + 1e-10) * integration_time_limit
-            trajectories.append(self.configurationspace.dynamics.integrate(state, u[i], integration_times[i]))
+            integration_times[i] = (np.random.random() + 1e-10) * self.integration_time_limit
+            trajectories.append(self.configurationspace.dynamics.integrate(state, u[i], 
+                                                                           integration_times[i], 
+                                                                           self.time_step))
             trajectories_end_distance[i] = self.configurationspace.distance(trajectories[i][-1],target_state)
         min_index = np.argmin(trajectories_end_distance)
 
