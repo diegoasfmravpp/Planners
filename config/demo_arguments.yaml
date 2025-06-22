@@ -4,6 +4,7 @@ rrt:
   integration_time_limit: 1.0
   goal_sampling_bias: 0.5
   sampled_controls: 3
+  plotting: True
 
 casadi_optimization:
   max_iterations: 100

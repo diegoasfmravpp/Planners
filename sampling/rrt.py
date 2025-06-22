@@ -116,22 +116,23 @@ class RRT:
                     return None, None, None, None
         return u[min_index],integration_times[min_index],trajectories[min_index], None
     
-    def plot_mpl(self, ax, colors = None):
+    def plot_trajectories(self, ax, colors = None):
         if colors is None: 
             colors = pl.cm.viridis(np.linspace(0, 1, len(self.nodes)))
+        # plot arrows of length proportional to the velocity for each node
         for idx,node in enumerate(self.nodes):
             x,y,theta,v,phi = node.state
             s = 0.08*v 
             ax.arrow(x, y, s*np.cos(theta), s*np.sin(theta), 
                         fc=colors[idx], lw=0.01, width=0.05)
+            # plot the trajectory from parent to this node
             if node.parent is not None:
                 traj = node.traj_from_parent
                 x = [s[0] for s in traj]
                 y = [s[1] for s in traj]
                 ax.plot(x, y, color=colors[idx], linewidth=1)
-            # if len(node.children) == 0:  #leaf node
-            #    self.plot_state_mpl(ax, node.state, 'blue')
-        self.plot_state_mpl(ax, self.start_node.state, 'green')
+        # plot the start node
+        self.plot_shape_at_state(ax, self.start_node.state, 'green')
 
     def plot_path(self, ax, node : RRTNode, color='blue', lw=3):
         ts,xs,us = node.traj_from_root()
@@ -140,9 +141,9 @@ class RRT:
         ax.plot(x, y, color=color, lw=lw)
         nodes = node.path_from_root()
         for n in nodes:
-            self.plot_state_mpl(ax, n.state, color=color)
+            self.plot_shape_at_state(ax, n.state, color=color)
     
-    def plot_state_mpl(self, ax, state, color='blue'):
+    def plot_shape_at_state(self, ax, state, color='blue'):
         poly = self.configurationspace.car_shape(state)
         if poly is not None:
             shapely.plotting.plot_polygon(poly,ax,color=color,add_points=False,linewidth=1)
