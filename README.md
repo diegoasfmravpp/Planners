@@ -6,9 +6,16 @@ Motion plannning with 2nd order dubins car demonstrations
 
 ### Generated Tree
 
-### Collision detectionn
+Demo of RRT generation:
+![gif of rrt being generated](/demos/rrt/rrt_demo.gif)
 
-### Collision avoidance
+### Collision detection and avoidance
+Some examples of generated trees with obstacle avoidance:
+![img of rrt demo](/demos/rrt/1kIterations_0.5Bias_3Controls_gif.png)
+![img of rrt demo](/demos/rrt/1kIterations_0.5Bias_3Controls.png)
+![img of rrt demo](/demos/rrt/1kIterations_0.5Bias_3Controls_2.png)
+
+
 
 ## Trajectory Optimization
 

@@ -144,10 +144,19 @@ def test_1():
     plt.show()
 
 def rrt_demo():
-    dubins = setup_system()
-
     x0 = np.array([0]*5)
-    xf = np.array([0,7,np.pi,0,0])
+    
+    dubins = setup_system()
+    while (np.any(dubins.car_shape(x0).intersects(dubins.obstacles))):
+        print("Initial state intersects with obstacles, resetting...")
+        dubins = setup_system()
+
+    xf = dubins.sample_state()
+    while (np.any(dubins.car_shape(xf).intersects(dubins.obstacles))):
+        print("Sampled goal state intersects with obstacles, resampling...")
+        xf = dubins.sample_state()
+    # xf = np.array([0,7,np.pi,0,0])
+
     rrt_settings = settings.get('demo', 'rrt')
     
     run_rrt(dubins, x0, xf, rrt_settings)

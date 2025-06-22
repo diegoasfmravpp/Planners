@@ -8,6 +8,7 @@ def run_rrt(configurationspace, start_state, target_state, settings):
     rrt.initialize(start_state, target_state)
 
     def setup_ax(ax, title):
+        """Sets up the axis for plotting."""
         ax.set_xlabel(r'$x(m)$')
         ax.set_ylabel(r'$y(m)$')
         ax.set_xlim(configurationspace.x_bounds)
@@ -23,7 +24,7 @@ def run_rrt(configurationspace, start_state, target_state, settings):
             shapely.plotting.plot_polygon(obs, ax, color='black', add_points=False, alpha=0.5)
     
     def draw_collision_states(ax):
-        """Draws the collision states on the current axis."""
+        """Draws the collision states on an axis."""
         num_collisions = 0
         for c in collision_states:
             if not(c is None):
@@ -83,8 +84,8 @@ def run_rrt(configurationspace, start_state, target_state, settings):
         axs[1, 0].set_title("{} Collision states avoided".format(num_collisions))
 
         if goal_node is not None:
-            rrt.plot_path(axs[0, 0], goal_node, color='red', lw=2)
-            rrt.plot_path(axs[1, 1], goal_node, color='red', lw=2)
+            rrt.plot_path(axs[0, 0], goal_node, color='green', lw=2)
+            rrt.plot_path(axs[1, 1], goal_node, color='green', lw=2)
             axs[1, 1].set_title("Goal reached on iteration {}!".format(iteration))
         elif closest_node is not None:
             rrt.plot_path(axs[0, 0], closest_node, color='orange', lw=2)
