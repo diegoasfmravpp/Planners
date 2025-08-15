@@ -9,6 +9,9 @@ from config.dynamics.dubins import VehicleStateSpace, VehicleConfigurationSpace
 from optimization.casadi_planning import cone_trajectory_optimization, trajectory_optimization
 from sampling.run import run_rrt
 from  utils import settings
+from ui import main_window
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from ui.main_window import MainWindow
 
 def setup_system():
     t_step, car_L = 0.1, 0.5
@@ -161,11 +164,26 @@ def rrt_demo():
     
     run_rrt(dubins, x0, xf, rrt_settings)
 
+def full_demo():
+
+    dubins = setup_system()
+
+
+    app = QApplication(sys.argv)
+    window = MainWindow(dubins)
+    window.show()
+    sys.exit(app.exec_())
+
+    # dubins = setup_system()
+    # main_window.main(dubins)
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         demo = sys.argv[1]
-
+    else:
+        demo = 'full_demo'
     demos = {
+        'full_demo': full_demo,
         'optimization_demo': optimization_demo,
         'test_1': test_1,
         'rrt_demo': rrt_demo
