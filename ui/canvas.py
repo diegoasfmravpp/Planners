@@ -3,6 +3,9 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import random
 import numpy as np
+import shapely.geometry
+from utils.plotting import setup_ax, plot_shape_at_state
+
 
 class ConfigSpaceCanvas(FigureCanvas):
     def __init__(self, configurationspace):
@@ -14,32 +17,12 @@ class ConfigSpaceCanvas(FigureCanvas):
 
         self.x0 = None
         self.xf = None
-        self.obstacles = []
-        self.path = []
 
-        self.draw_space()
+        self.rand_start()
+        self.rand_goal()
 
-    def draw_space(self):
         self.ax.clear()
-        self.ax.set_xlim(*self.configurationspace.x_bounds)
-        self.ax.set_ylim(*self.configurationspace.y_bounds)
-        self.ax.set_title("Configuration Space")
-
-        if self.x0 is not None:
-            self.ax.plot(self.x0[0], self.x0[1], 'go', label="Start")
-
-        if self.xf is not None:
-            self.ax.plot(self.xf[0], self.xf[1], 'ro', label="Goal")
-
-        for obs in self.obstacles:
-            circle = plt.Circle(obs, 0.3, color='black')
-            self.ax.add_patch(circle)
-
-        if self.path:
-            xs, ys = zip(*self.path)
-            self.ax.plot(xs, ys, 'b-', label="Path")
-
-        self.ax.legend(loc="upper right")
+        setup_ax(self.ax, "Plot", self.configurationspace, self.x0, self.xf)
         self.draw()
 
     def rand_start(self):
@@ -47,20 +30,38 @@ class ConfigSpaceCanvas(FigureCanvas):
         while np.any(self.configurationspace.car_shape(state).intersects(self.configurationspace.obstacles)):
             state = self.configurationspace.sample_state()
         self.x0 = state
-        self.draw_space()
+
+        self.ax.clear()
+        setup_ax(self.ax, "Plot", self.configurationspace, self.x0, self.xf)
+        self.draw()
 
     def rand_goal(self):
         state = self.configurationspace.sample_state()
         while np.any(self.configurationspace.car_shape(state).intersects(self.configurationspace.obstacles)):
             state = self.configurationspace.sample_state()
         self.xf = state
-        self.draw_space()
+
+        self.ax.clear()
+        setup_ax(self.ax, "Plot", self.configurationspace, self.x0, self.xf)
+        self.draw()
 
     def rand_obstacles(self, n=5):
-        self.obstacles = [(random.uniform(*self.configurationspace.x_bounds),
-                           random.uniform(*self.configurationspace.y_bounds)) for _ in range(n)]
-        self.draw_space()
+        self.configurationspace.obstacles = []
+        obstacles = []
+        #obstacle setup
+        for i in range(n):
+            while True:
+                c1 = np.random.uniform(-10,10,2)
+                center = shapely.geometry.Point(c1[0],c1[1])
+                radius = np.random.uniform(1,2)
+                obstacle = center.buffer(radius)
+                if not np.any(obstacle.intersects([self.configurationspace.car_shape(self.x0),
+                                               self.configurationspace.car_shape(self.xf)])):
+                    break
+            obstacles.append(obstacle)
+        self.configurationspace.obstacles = obstacles
 
-    def set_path(self, path):
-        self.path = path
-        self.draw_space()
+        self.ax.clear()
+        setup_ax(self.ax, "Plot", self.configurationspace, self.x0, self.xf)
+        self.draw()
+

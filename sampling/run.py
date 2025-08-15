@@ -4,26 +4,11 @@ import shapely
 import numpy as np
 from ui.canvas import ConfigSpaceCanvas
 from PyQt5 import QtWidgets
+from utils.plotting import setup_ax
 
 
 def run_rrt(configurationspace, start_state, target_state, settings):
 
-    def setup_ax(ax, title):
-        """Sets up the axis for plotting."""
-        ax.set_xlabel(r'$x(m)$')
-        ax.set_ylabel(r'$y(m)$')
-        ax.set_xlim(configurationspace.x_bounds)
-        ax.set_ylim(configurationspace.y_bounds)
-        ax.set_title(title)
-        ax.set_aspect('equal', adjustable='box')
-        # plot goal configuration
-        if target_state is not None:
-            ax.arrow(target_state[0], target_state[1], 1.0*np.cos(target_state[2]), 
-                1.0*np.sin(target_state[2]), color='red', width=.15, zorder=1e4)
-        # plot obstacles
-        for obs in configurationspace.obstacles:
-            shapely.plotting.plot_polygon(obs, ax, color='black', add_points=False, alpha=0.5)
-    
     def draw_collision_states(ax):
         """Draws the collision states on an axis."""
         num_collisions = 0
@@ -48,7 +33,7 @@ def run_rrt(configurationspace, start_state, target_state, settings):
         # setup axes
         titles = ["RRT Demo", "RRT Tree", "Collision states avoided", "Goal Reached"]
         for i,ax in enumerate(axs.flat):
-            setup_ax(ax, titles[i])
+            setup_ax(ax, titles[i], configurationspace, start_state, target_state)
 
     rrt = RRT(configurationspace, settings)
     rrt.initialize(start_state, target_state)
@@ -75,13 +60,13 @@ def run_rrt(configurationspace, start_state, target_state, settings):
         if settings['plotting'] and iteration % 100 == 0:
             if len(fig.get_axes()) > 1:
                 axs[0, 0].cla()
-                setup_ax(axs[0, 0], "RRT Demo")
+                setup_ax(axs[0, 0], "RRT Demo", configurationspace, start_state, target_state)
                 rrt.plot_trajectories(axs[0, 0])
                 fig.canvas.draw()
                 plt.pause(0.001)
             else:
                 axs.cla()
-                setup_ax(axs, "RRT Demo")
+                setup_ax(axs, "RRT Demo", configurationspace, start_state, target_state)
                 rrt.plot_trajectories(axs)
                 canvas.draw()
                 QtWidgets.QApplication.processEvents()
@@ -91,11 +76,11 @@ def run_rrt(configurationspace, start_state, target_state, settings):
         if len(fig.get_axes()) > 1:
             plt.ioff() # to keep plot on
             axs[0, 0].cla()
-            setup_ax(axs[0, 0],"RRT Demo")
+            setup_ax(axs[0, 0],"RRT Demo", configurationspace, start_state, target_state)
             rrt.plot_trajectories(axs[0, 0])
-            axs[0, 0].set_title("RRT Demo")
+            axs[0, 0].set_title("RRT Demo", configurationspace, start_state, target_state)
             rrt.plot_trajectories(axs[0, 1])
-            axs[0, 1].set_title("RRT Tree")
+            axs[0, 1].set_title("RRT Tree", configurationspace, start_state, target_state)
 
             draw_collision_states(axs[0, 0])
             num_collisions = draw_collision_states(axs[1, 0])
@@ -113,7 +98,7 @@ def run_rrt(configurationspace, start_state, target_state, settings):
             plt.show()
         else:
             axs.cla()
-            setup_ax(axs,"RRT Demo")
+            setup_ax(axs,"RRT Demo", configurationspace, start_state, target_state)
             rrt.plot_trajectories(axs)
             if goal_node is not None:
                 rrt.plot_path(axs, goal_node, color='green', lw=2)
