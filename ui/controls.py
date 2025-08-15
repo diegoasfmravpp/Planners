@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QPushButton, QComboBox, QSpinBox
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QPushButton, QComboBox, QSpinBox, QDoubleSpinBox
 
 class ControlsPanel(QVBoxLayout):
     def __init__(self, run_callback, canvas):
@@ -12,13 +12,31 @@ class ControlsPanel(QVBoxLayout):
 
         self.addWidget(QLabel("Iterations:"))
         self.iter_spin = QSpinBox()
-        self.iter_spin.setValue(500)
+        self.iter_spin.setRange(1, 10000)
+        self.iter_spin.setValue(1000)
+        self.iter_spin.setSingleStep(100)
         self.addWidget(self.iter_spin)
+
+        self.addWidget(QLabel("Goal Bias:"))
+        self.bias_spin = QDoubleSpinBox()
+        self.bias_spin.setRange(0, 1)
+        self.bias_spin.setValue(0.5)
+        self.bias_spin.setSingleStep(0.1)
+        self.addWidget(self.bias_spin)
+
+        self.addWidget(QLabel("Controls Sampled:"))
+        self.controls_spin = QSpinBox()
+        self.controls_spin.setRange(1, 10)
+        self.controls_spin.setValue(3)
+        self.controls_spin.setSingleStep(1)
+        self.addWidget(self.controls_spin)
 
         run_btn = QPushButton("Run Planner")
         run_btn.clicked.connect(lambda: run_callback(
             self.algo_dropdown.currentText(),
-            {"iterations": self.iter_spin.value()}
+            {"max_iterations": self.iter_spin.value(),
+             "goal_sampling_bias": self.bias_spin.value(),
+             "sampled_controls": self.controls_spin.value()}
         ))
         self.addWidget(run_btn)
 

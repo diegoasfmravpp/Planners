@@ -25,20 +25,23 @@ class MainWindow(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-    def run_planner(self, algo_name, params):
+    def run_planner(self, algo_name, window_params):
         start = self.canvas.x0
         goal = self.canvas.xf
-        obstacles = self.canvas.obstacles
+        params = []
 
         if algo_name == "RRT":
+            params = settings.get('demo', 'rrt')
+            for key, value in params.items():
+                params[key] = window_params[key] if key in window_params else value
             print("Running RRT with params:", params)
-            run.run_rrt(self.canvas, start, goal, settings.get('demo', 'rrt'))
+            run.run_rrt(self.canvas, start, goal, params)
             # path = rrt.run_rrt(start, goal, obstacles, params)
         elif algo_name == "PRM":
-            print("Running PRM with params:", params)
+            print("Running PRM with params:", window_params)
             # path = prm.run_prm(start, goal, obstacles, params)
         elif algo_name == "A*":
-            print("Running A* with params:", params)
+            print("Running A* with params:", window_params)
             # path = astar.run_astar(start, goal, obstacles, params)
         else:
             path = []
